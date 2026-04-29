@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Source {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  url       String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  topics    Topic[]
+}
+
+model Topic {
+  id        String      @id @default(cuid())
+  title     String
+  summary   String      @default("")
+  url       String      @unique
+  sourceId  String
+  source    Source      @relation(fields: [sourceId], references: [id])
+  hotScore  Int         @default(50)
+  rawScore  Int         @default(0)
+  tags      String      @default("[]")
+  firstSeen DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  trendData TrendData[]
+  alerts    Alert[]
+
+  @@index([hotScore])
+  @@index([firstSeen])
+  @@index([sourceId])
+}
+
+model TrendData {
+  id         String   @id @default(cuid())
+  topicId    String
+  topic      Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  hotScore   Int
+  recordedAt DateTime @default(now())
+
+  @@index([topicId])
+  @@index([recordedAt])
+}
+
+model Alert {
+  id        String   @id @default(cuid())
+  topicId   String
+  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  type      String
+  sentAt    DateTime @default(now())
+  threshold Int
+}
+
+model Settings {
+  id             String   @id @default("singleton")
+  cronExpression String   @default("*/30 * * * *")
+  alertThreshold Int      @default(80)
+  emailEnabled   Boolean  @default(false)
+  notifyEmail    String   @default("")
+  updatedAt      DateTime @updatedAt
+}
