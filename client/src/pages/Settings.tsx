@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Save, Check } from 'lucide-react'
+import { ArrowLeft, Save, Check, Bell, Clock, Shield } from 'lucide-react'
 import { fetchSettings, updateSettings } from '../lib/api'
+import { CardSpotlight } from '../components/aceternity/CardSpotlight'
 import type { Settings as SettingsType } from '../types/index'
 
 export function Settings() {
@@ -23,105 +24,157 @@ export function Settings() {
       const updated = await updateSettings(form)
       setSettings(updated)
       setSaved(true)
-      setTimeout(() => setSaved(false), 2000)
+      setTimeout(() => setSaved(false), 2500)
     } catch (err) {
       console.error('Save failed:', err)
     }
   }
 
-  const field = (label: string, child: React.ReactNode) => (
-    <div className="space-y-1.5">
-      <label className="text-xs font-mono text-white/40 uppercase tracking-wider">{label}</label>
-      {child}
-    </div>
-  )
-
-  const inputClass = 'w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-cyan-400/50 transition-colors'
+  const inputClass = [
+    'w-full bg-white/[0.04] border border-white/8 rounded-xl px-3.5 py-2.5',
+    'text-sm text-white font-mono placeholder-white/20',
+    'focus:outline-none focus:border-cyan-400/40 focus:bg-white/[0.06]',
+    'transition-all duration-200',
+  ].join(' ')
 
   return (
-    <div className="min-h-screen px-4 sm:px-6 lg:px-8 py-6 max-w-xl mx-auto text-white">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <Link to="/" className="inline-flex items-center gap-1.5 text-white/40 hover:text-white/70 transition-colors text-sm mb-6">
-          <ArrowLeft size={14} /> Back to Dashboard
+    <div className="min-h-screen px-4 sm:px-6 lg:px-8 py-6 max-w-xl mx-auto">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 text-white/30 hover:text-white/60 transition-colors text-xs font-mono tracking-widest mb-6 group"
+        >
+          <ArrowLeft size={12} className="group-hover:-translate-x-0.5 transition-transform" />
+          RETURN TO FEED
         </Link>
 
-        <h1 className="text-xl font-bold mb-6">Settings</h1>
+        <div className="mb-6">
+          <h1 className="text-xl font-bold">Configuration</h1>
+          <p className="text-white/25 text-xs font-mono mt-0.5 tracking-wide">Signal monitor parameters</p>
+        </div>
 
         {isLoading || !settings ? (
-          <div className="flex justify-center py-12">
+          <div className="flex justify-center py-16">
             <motion.div
-              className="w-6 h-6 rounded-full border-2 border-cyan-400/30 border-t-cyan-400"
+              className="w-8 h-8 rounded-full border-t border-cyan-400"
               animate={{ rotate: 360 }}
               transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}
             />
           </div>
         ) : (
-          <div className="space-y-5 rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-sm p-6">
-            {field('Cron Schedule', (
-              <input
-                type="text"
-                className={inputClass}
-                value={form.cronExpression ?? ''}
-                onChange={(e) => setForm((f) => ({ ...f, cronExpression: e.target.value }))}
-                placeholder="*/30 * * * *"
-              />
-            ))}
-
-            {field('Alert Threshold (Hot Score)', (
-              <div className="flex items-center gap-3">
+          <CardSpotlight radius={400} color="#00f5d408" className="border border-white/8 bg-white/[0.03] p-6">
+            <div className="space-y-6">
+              {/* Cron */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-1.5 text-[10px] font-mono text-white/35 uppercase tracking-widest">
+                  <Clock size={10} /> Scan Interval (Cron)
+                </label>
                 <input
-                  type="range"
-                  min={50}
-                  max={99}
-                  value={form.alertThreshold ?? 80}
-                  onChange={(e) => setForm((f) => ({ ...f, alertThreshold: Number(e.target.value) }))}
-                  className="flex-1 accent-violet-500"
+                  type="text"
+                  className={inputClass}
+                  value={form.cronExpression ?? ''}
+                  onChange={(e) => setForm((f) => ({ ...f, cronExpression: e.target.value }))}
+                  placeholder="*/30 * * * *"
                 />
-                <span className="text-violet-400 font-mono font-bold w-8 text-right">
-                  {form.alertThreshold}
-                </span>
+                <p className="text-white/15 text-[10px] font-mono">
+                  Standard cron format — e.g. <code className="text-white/30">*/30 * * * *</code> = every 30 min
+                </p>
               </div>
-            ))}
 
-            {field('Email Notifications', (
-              <label className="flex items-center gap-3 cursor-pointer">
+              {/* Divider */}
+              <div className="h-px bg-white/5" />
+
+              {/* Threshold */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-1.5 text-[10px] font-mono text-white/35 uppercase tracking-widest">
+                  <Shield size={10} /> Alert Threshold
+                </label>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="range"
+                    min={50}
+                    max={99}
+                    value={form.alertThreshold ?? 80}
+                    onChange={(e) => setForm((f) => ({ ...f, alertThreshold: Number(e.target.value) }))}
+                    className="flex-1 accent-violet-500 cursor-pointer"
+                  />
+                  <span className="text-violet-400 font-mono font-bold text-sm w-7 text-right glow-violet">
+                    {form.alertThreshold}
+                  </span>
+                </div>
+                <p className="text-white/15 text-[10px] font-mono">
+                  Topics scoring above this trigger email alerts
+                </p>
+              </div>
+
+              {/* Divider */}
+              <div className="h-px bg-white/5" />
+
+              {/* Email */}
+              <div className="space-y-3">
+                <label className="flex items-center gap-1.5 text-[10px] font-mono text-white/35 uppercase tracking-widest">
+                  <Bell size={10} /> Email Alerts
+                </label>
                 <div
-                  className="relative w-10 h-5 rounded-full transition-colors"
-                  style={{ background: form.emailEnabled ? '#8b5cf6' : '#ffffff15' }}
+                  className="flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/5 cursor-pointer"
                   onClick={() => setForm((f) => ({ ...f, emailEnabled: !f.emailEnabled }))}
                 >
-                  <motion.div
-                    className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow"
-                    animate={{ left: form.emailEnabled ? '1.25rem' : '0.125rem' }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                  />
+                  <span className="text-sm text-white/60">
+                    {form.emailEnabled ? 'Alerts enabled' : 'Alerts disabled'}
+                  </span>
+                  <div
+                    className="relative w-10 h-5 rounded-full transition-colors duration-200"
+                    style={{ background: form.emailEnabled ? '#8b5cf6' : '#ffffff15' }}
+                  >
+                    <motion.div
+                      className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm"
+                      animate={{ left: form.emailEnabled ? '1.375rem' : '0.125rem' }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                    />
+                  </div>
                 </div>
-                <span className="text-white/60 text-sm">
-                  {form.emailEnabled ? 'Enabled' : 'Disabled'}
-                </span>
-              </label>
-            ))}
 
-            {form.emailEnabled && field('Notification Email', (
-              <input
-                type="email"
-                className={inputClass}
-                value={form.notifyEmail ?? ''}
-                onChange={(e) => setForm((f) => ({ ...f, notifyEmail: e.target.value }))}
-                placeholder="you@example.com"
-              />
-            ))}
+                {form.emailEnabled && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                  >
+                    <input
+                      type="email"
+                      className={inputClass}
+                      value={form.notifyEmail ?? ''}
+                      onChange={(e) => setForm((f) => ({ ...f, notifyEmail: e.target.value }))}
+                      placeholder="recipient@example.com"
+                    />
+                  </motion.div>
+                )}
+              </div>
 
-            <motion.button
-              onClick={handleSave}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-sm transition-colors"
-              style={{ background: saved ? '#00f5d4' : '#8b5cf6', color: saved ? '#000' : '#fff' }}
-            >
-              {saved ? <><Check size={16} /> Saved!</> : <><Save size={16} /> Save Settings</>}
-            </motion.button>
-          </div>
+              {/* Save */}
+              <motion.button
+                onClick={handleSave}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300"
+                style={{
+                  background: saved
+                    ? 'linear-gradient(135deg, #00f5d4, #00c9a7)'
+                    : 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+                  color: saved ? '#000' : '#fff',
+                  boxShadow: saved
+                    ? '0 0 20px rgba(0,245,212,0.3)'
+                    : '0 0 20px rgba(139,92,246,0.3)',
+                }}
+              >
+                {saved ? (
+                  <><Check size={15} /> Parameters Saved</>
+                ) : (
+                  <><Save size={15} /> Save Configuration</>
+                )}
+              </motion.button>
+            </div>
+          </CardSpotlight>
         )}
       </motion.div>
     </div>

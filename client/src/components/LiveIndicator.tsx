@@ -1,5 +1,4 @@
-import { motion } from 'framer-motion'
-import { clsx } from 'clsx'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface Props {
   isConnected: boolean
@@ -8,34 +7,37 @@ interface Props {
 }
 
 export function LiveIndicator({ isConnected, isScraping, lastUpdated }: Props) {
-  const label = isScraping ? 'SCANNING' : isConnected ? 'LIVE' : 'OFFLINE'
-  const color = isScraping ? '#8b5cf6' : isConnected ? '#00f5d4' : '#6b7280'
+  const color  = isScraping ? '#8b5cf6' : isConnected ? '#00f5d4' : '#4b5563'
+  const label  = isScraping ? 'SCANNING' : isConnected ? 'LIVE' : 'OFFLINE'
 
   return (
-    <div className="flex items-center gap-2">
-      <div className="relative flex items-center justify-center w-4 h-4">
-        {isConnected && (
-          <motion.div
-            className="absolute w-4 h-4 rounded-full"
-            style={{ background: color, opacity: 0.3 }}
-            animate={{ scale: [1, 1.8, 1] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          />
-        )}
-        <div
-          className="w-2 h-2 rounded-full"
-          style={{ background: color }}
-        />
+    <div className="flex items-center gap-2.5">
+      {/* Pulse ring + dot */}
+      <div className="relative w-4 h-4 flex items-center justify-center">
+        <AnimatePresence>
+          {isConnected && (
+            <motion.span
+              key="ring"
+              className="absolute inline-flex rounded-full"
+              style={{ background: color, opacity: 0.25, width: 16, height: 16 }}
+              animate={{ scale: [1, 1.9, 1], opacity: [0.25, 0, 0.25] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          )}
+        </AnimatePresence>
+        <span className="w-2 h-2 rounded-full" style={{ background: color }} />
       </div>
+
       <span
-        className={clsx('font-mono text-xs font-semibold tracking-widest')}
+        className="font-mono text-[11px] font-bold tracking-[0.2em]"
         style={{ color }}
       >
         {label}
       </span>
+
       {lastUpdated && (
-        <span className="text-white/30 text-xs font-mono hidden sm:block">
-          {new Date(lastUpdated).toLocaleTimeString()}
+        <span className="hidden sm:block text-white/20 text-[10px] font-mono border-l border-white/10 pl-2.5">
+          {new Date(lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
         </span>
       )}
     </div>

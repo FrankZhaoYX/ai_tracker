@@ -38,3 +38,53 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #ffffff25;
 }
+
+/* Aceternity Meteors animation */
+@keyframes meteor {
+  0% {
+    transform: rotate(215deg) translateX(0);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(215deg) translateX(-500px);
+    opacity: 0;
+  }
+}
+
+.meteor {
+  animation: meteor linear infinite;
+}
+
+/* Scan line overlay for high-tech feel */
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+.scanline {
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, rgba(0, 245, 212, 0.04), transparent);
+  animation: scan 8s linear infinite;
+  z-index: 9999;
+}
+
+/* Number counter glow */
+.glow-cyan {
+  text-shadow: 0 0 20px #00f5d4aa;
+}
+
+.glow-violet {
+  text-shadow: 0 0 20px #8b5cf6aa;
+}
+
+.glow-red {
+  text-shadow: 0 0 20px #ef4444aa;
+}
