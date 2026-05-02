@@ -15,6 +15,7 @@ interface Tweet {
   likeCount?: number
   retweetCount?: number
   quoteCount?: number
+  viewCount?: number
   author?: TweetAuthor
 }
 
@@ -36,10 +37,10 @@ export async function scrapeTwitter(limit = 10): Promise<ScrapedItem[]> {
         query: [
           '(AI OR LLM OR "language model" OR "machine learning" OR OpenAI OR Anthropic',
           'OR "deep learning" OR "neural network" OR GPT OR Claude OR Gemini OR Mistral)',
-          'lang:en -is:retweet min_faves:200',
+          'lang:en -is:retweet min_faves:1000 min_retweets:500',
         ].join(' '),
         queryType: 'Latest',
-        count: limit * 4,  // fetch more to survive quality filtering
+        count: limit * 5,  // fetch more to survive quality filtering
       },
       timeout: 12000,
     })
@@ -51,6 +52,9 @@ export async function scrapeTwitter(limit = 10): Promise<ScrapedItem[]> {
         t.text &&
         t.url &&
         t.text.length >= 30 &&
+        (t.likeCount ?? 0) > 1000 &&
+        (t.retweetCount ?? 0) > 500 &&
+        (t.viewCount ?? 0) > 5000 &&
         isQualityAccount(t.author)
       )
       .slice(0, limit)
