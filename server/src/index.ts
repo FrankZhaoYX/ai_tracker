@@ -51,11 +51,12 @@ async function seed() {
   })
 
   const sources = [
-    { name: 'hackernews', url: 'https://news.ycombinator.com' },
-    { name: 'reddit_ml', url: 'https://www.reddit.com/r/MachineLearning' },
-    { name: 'reddit_ai', url: 'https://www.reddit.com/r/artificial' },
-    { name: 'twitter', url: 'https://twitter.com' },
-    { name: 'producthunt', url: 'https://www.producthunt.com' },
+    { name: 'hackernews',       url: 'https://news.ycombinator.com' },
+    { name: 'reddit_ml',        url: 'https://www.reddit.com/r/MachineLearning' },
+    { name: 'reddit_localllama', url: 'https://www.reddit.com/r/LocalLLaMA' },
+    { name: 'arxiv',            url: 'https://arxiv.org' },
+    { name: 'huggingface',      url: 'https://huggingface.co/papers' },
+    { name: 'twitter',          url: 'https://twitter.com' },
   ]
 
   for (const s of sources) {

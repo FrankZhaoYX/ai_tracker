@@ -69,7 +69,7 @@ ${item.text ? `Content: ${item.text.slice(0, 600)}` : ''}`
     console.error('[openrouter] analysis failed:', (err as Error).message)
     const fallback = Math.min(85, Math.round(Math.log10(item.rawScore + 2) * 28))
     return {
-      summary: '',
+      summary: item.title,
       tags: [],
       hotScore: Math.max(10, fallback),
     }
